@@ -49,7 +49,16 @@ const Player = () => {
   const { isPlaying, setIsPlaying, currentMusic, setCurrentMusic } =
     usePlayerStore((state) => state);
   const audioRef = useRef();
-  const [volume, setVolume] = useState(1)
+  const [volume, setVolume] = useState({
+    volume: 1,
+    volume2: 1
+  })
+
+  // localStorage.setItem("volume", volume)
+
+  // useEffect(() => {
+  //   localStorage.setItem("volume", volume)
+  // }, [volume])
 
   useEffect(() => {
     isPlaying ? audioRef.current.play() : audioRef.current.pause();
@@ -64,24 +73,16 @@ const Player = () => {
     }
   }, [currentMusic]);
 
-  // const handleClickVolume = () => {
-  //   if(volume === 1){
-  //     setVolume(0)
-  //   audioRef.current.volume = 0;
-  //   } else {
-  //     setVolume(1)
-  //   audioRef.current.volume = 1;
-
-  //   }
-  // }
 
   const handleClickVolume = () => {
-    setVolume(prevVolume => {
-      const newVolume = prevVolume === 1 ? 0 : 1;
-      audioRef.current.volume = newVolume;
-      return newVolume;
-    });
-  };
+    if (volume.volume > 0) {
+      audioRef.current.volume = 0;
+      setVolume(prevVolume => ({volume: 0, volume2: prevVolume.volume }));
+    } else {
+      audioRef.current.volume = volume.volume2;
+      setVolume(prevVolume => ({...prevVolume, volume: volume.volume2 }));
+    }
+  }
 
   const handleClick = () => {
     setIsPlaying(!isPlaying);
@@ -105,22 +106,21 @@ const Player = () => {
       <div className="flex gap-2">
         <button onClick={handleClickVolume}>
           {
-            volume === 0? <OffVolume className="text-zinc-500"/>: 
-            volume < 0.35? <DownVolume className="text-zinc-500"/> :
-            volume < 0.75? <MidVolume className="text-zinc-500"/> :
+            volume.volume === 0? <OffVolume className="text-zinc-500"/>: 
+            volume.volume < 0.35? <DownVolume className="text-zinc-500"/> :
+            volume.volume < 0.75? <MidVolume className="text-zinc-500"/> :
             <HighVolume className="text-zinc-500"/>
           }
         </button>
         <Slider
-          defaultValue={[volume * 100]}
+          defaultValue={[volume.volume * 100]}
           max={100}
           min={0}
-          value={[volume * 100]}
+          value={[volume.volume * 100]}
           className="w-[95px]"
           onValueChange={(value) => {
             const [newVolume] = value;
-            setVolume(newVolume / 100)
-            console.log(volume)
+            setVolume({...volume, volume:newVolume / 100})
             audioRef.current.volume =newVolume / 100;
           }}
         />
