@@ -1,7 +1,7 @@
 {
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "baseUrl": "C:/Users/lauti/OneDrive/Escritorio/Proyectos/spotify-twitch-clon",
+    "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
       "@/components": ["src/components/*"],
