@@ -45,21 +45,82 @@ const CurrentSong = ({ image, title, artists }) => {
   );
 };
 
+const VolumeControl = ({audioRef}) => {
+  const [volume, setVolume] = useState({
+    volume: 100,
+    volumePreviousRef: 100
+  })
+
+  const handleClickVolume = () => {
+    if (volume.volume > 0) {
+      audioRef.current.volume = 0;
+      setVolume(prevVolume => ({volume: 0, volumePreviousRef: prevVolume.volume }));
+    } else {
+      audioRef.current.volume = volume.volumePreviousRef / 100;
+      setVolume(prevVolume => ({...prevVolume, volume: volume.volumePreviousRef }));
+    }
+  }
+
+  return (
+    <div className="flex gap-2">
+        <button onClick={handleClickVolume} className="opacity-70 hover:opacity-100 transition">
+          {
+            volume.volume === 0? <OffVolume className="text-zinc-500"/>:
+            volume.volume < 35? <DownVolume className="text-zinc-500"/> :
+            volume.volume < 75? <MidVolume className="text-zinc-500"/> :
+            <HighVolume className="text-zinc-500"/>
+          }
+        </button>
+        <Slider
+          defaultValue={[volume.volume]}
+          max={100}
+          min={0}
+          value={[volume.volume]}
+          className="w-[95px]"
+          onValueChange={(value) => {
+            const [newVolume] = value;
+            setVolume({...volume, volume:newVolume})
+            audioRef.current.volume =newVolume / 100;
+          }}
+        />
+      </div>
+  )
+}
+
+const SongControl = ({ audio }) => {
+  const [currentTime, setCurrentTime] = useState(0)
+
+  // if (audio.current !== undefined) {
+  //   console.log(audio.current.readyState)
+
+  // }
+  
+
+  return(
+    <div className="flex justify-between gap-x-2 text-sm text-zinc-400">
+      <span>
+        0:00
+      </span>
+      <Slider
+        max={audio.current?.duration}
+        min={0}
+        value={[currentTime]}
+        className="w-[445px]"
+        onVolumeChange={(value) => {
+
+        }}
+        />
+        <span>
+          {audio.current?.duration}
+        </span>
+    </div>
+  )
+}
+
 const Player = () => {
   const { isPlaying, setIsPlaying, currentMusic, setCurrentMusic } =
     usePlayerStore((state) => state);
   const audioRef = useRef();
-  const [volume, setVolume] = useState({
-    volume: 1,
-    volume2: 1
-  })
-
-  // localStorage.setItem("volume", volume)
-
-  // useEffect(() => {
-  //   localStorage.setItem("volume", volume)
-  // }, [volume])
-
   useEffect(() => {
     isPlaying ? audioRef.current.play() : audioRef.current.pause();
   }, [isPlaying]);
@@ -69,20 +130,10 @@ const Player = () => {
     if (song) {
       const src = `/music/${playlist?.id}/0${song.id}.mp3`;
       audioRef.current.src = src;
-      audioRef.current.play();
+      audioRef.current.play();    
     }
   }, [currentMusic]);
 
-
-  const handleClickVolume = () => {
-    if (volume.volume > 0) {
-      audioRef.current.volume = 0;
-      setVolume(prevVolume => ({volume: 0, volume2: prevVolume.volume }));
-    } else {
-      audioRef.current.volume = volume.volume2;
-      setVolume(prevVolume => ({...prevVolume, volume: volume.volume2 }));
-    }
-  }
 
   const handleClick = () => {
     setIsPlaying(!isPlaying);
@@ -95,36 +146,16 @@ const Player = () => {
       </div>
 
       <div className="grid place-content-center gap-4 flex-1">
-        <div className="flex justify-center">
-          <button className="bg-white rounded-full p-2" onClick={handleClick}>
+        <div className="flex justify-center items-center gap-y-2  flex-col">
+          <button className="bg-white rounded-full p-2 w-fit" onClick={handleClick}>
             {isPlaying ? <Pause /> : <Play />}
           </button>
-          <audio ref={audioRef} />
+          <SongControl audio={audioRef}/>
+          <audio ref={audioRef}/>
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <button onClick={handleClickVolume}>
-          {
-            volume.volume === 0? <OffVolume className="text-zinc-500"/>: 
-            volume.volume < 0.35? <DownVolume className="text-zinc-500"/> :
-            volume.volume < 0.75? <MidVolume className="text-zinc-500"/> :
-            <HighVolume className="text-zinc-500"/>
-          }
-        </button>
-        <Slider
-          defaultValue={[volume.volume * 100]}
-          max={100}
-          min={0}
-          value={[volume.volume * 100]}
-          className="w-[95px]"
-          onValueChange={(value) => {
-            const [newVolume] = value;
-            setVolume({...volume, volume:newVolume / 100})
-            audioRef.current.volume =newVolume / 100;
-          }}
-        />
-      </div>
+      <VolumeControl audioRef={audioRef}/>
     </div>
   );
 };
