@@ -32,13 +32,13 @@ const HighVolume = () => (
 
 const CurrentSong = ({ image, title, artists }) => {
   return (
-    <div className="flex items-center gap-5 relative overflow-hidden">
-      <picture className="w-14 h-14 bg-zinc-800 rounded-md shadow-lg overflow-hidden">
-        <img src={image} alt={title} />
+    <div className="container_currentSong flex items-center gap-5 relative overflow-auto">
+      <picture className="w-14 h-14 bg-zinc-800 shadow-lg rounded-md overflow-hidden">
+        <img src={image} alt={title} className="aspect-square"/>
       </picture>
 
       <div className="flex flex-col">
-        <h3 className="font-semibold text-sm block">{title}</h3>
+        <h3 className="font-semibold text-sm ">{title}</h3>
         <span className="text-xs opacity-80">{artists?.join(", ")}</span>
       </div>
     </div>
@@ -118,8 +118,8 @@ const SongControl = ({ audio }) => {
   
 
   return(
-    <div className="flex justify-between gap-x-2 text-xs text-zinc-400 pt-2">
-      <span className="opacity-50 w-12 text-right">
+    <div className="flex justify-center gap-x-2 text-xs text-zinc-400 pt-2 w-full">
+      <span className="opacity-50 w-10 text-right">
         {formatTime(currentTime )}
       </span>
       <Slider
@@ -127,13 +127,13 @@ const SongControl = ({ audio }) => {
         max={audio?.current?.duration ?? 0}
         min={0}
         value={[currentTime]}
-        className="w-[445px]"
+        className="max-w-[445px] flex-1"
         onValueChange={(value) => {
           const [time] = value
           audio.current.currentTime = time
         }}
         />
-          <span className="opacity-50 w-12">
+          <span className="opacity-50 w-10">
           {duration ? formatTime(duration): null}
           </span> 
     </div>
@@ -163,22 +163,24 @@ const Player = () => {
   };
 
   return (
-    <div className="flex flex-row justify-between w-full px-1 z-50 items-center">
-      <div className="w-[200px]">
+    <div className="flex flex-row justify-between w-full z-50 items-center">
+      <div className="min-w-[180px] w-[30%] pl-1">
         <CurrentSong {...currentMusic.song} />
       </div>
 
-      <div className="grid place-content-center gap-4 flex-1">
-        <div className="flex justify-center items-center flex-col">
+
+      <div className="flex justify-center items-center flex-col w-[40%] flex-1">
+        <div className="flex">
           <button className="bg-white rounded-full p-2 w-fit" onClick={handleClick}>
             {isPlaying ? <Pause /> : <Play />}
           </button>
-          <SongControl audio={audioRef}/>
-          <audio ref={audioRef}/>
         </div>
+        <SongControl audio={audioRef}/>
+        <audio ref={audioRef}/>
       </div>
 
-      <div className="grid place-content-center">
+
+      <div className="min-w-[180px] w-[30%] pr-1 flex items-center justify-end">
       <VolumeControl audioRef={audioRef}/>
       </div>
     </div>
