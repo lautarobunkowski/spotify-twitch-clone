@@ -2,6 +2,7 @@ import { allPlaylists, songs as allSongs } from "@/lib/data.ts";
 
 export async function GET({ params, request }) {
   const { url } = request;
+  console.log(url)
   const urlObject = new URL(url);
   const id = urlObject.searchParams.get("id");
 
